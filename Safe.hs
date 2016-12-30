@@ -333,6 +333,6 @@ readEither s = case [x | (x,t) <- reads s, ("","") <- lex t] of
         _   -> Left $ "ambiguous parse on " ++ prefix
     where
         maxLength = 15
-        prefix = '\"' : a ++ if length s <= maxLength then (b ++ "\"") else "...\""
+        prefix = '\"' : a ++ if length s <= maxLength then b ++ "\"" else "...\""
             where (a,b) = splitAt (maxLength - 3) s
 #endif

@@ -76,7 +76,7 @@ main = do
                     note "foo" xs ys `errs` ["Safe.Exact." ++ name ++ "ExactNote","foo"]
                     may xs ys === Nothing
         f "zip" zipExact zipExactMay zipExactNote
-        f "zipWith" (zipWithExact (,)) (zipWithExactMay (,)) (flip zipWithExactNote (,))
+        f "zipWith" (zipWithExact (,)) (zipWithExactMay (,)) (`zipWithExactNote` (,))
 
 
 ---------------------------------------------------------------------
