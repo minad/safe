@@ -1,5 +1,7 @@
 Changelog for Safe
 
+master
+    add Safe succ and pred
 0.3.10
     #15, add Safe cycle
 0.3.9

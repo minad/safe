@@ -41,7 +41,9 @@ module Safe(
     findJustDef, findJustNote,
     elemIndexJustDef, elemIndexJustNote,
     findIndexJustDef, findIndexJustNote,
-    toEnumMay, toEnumDef, toEnumNote, toEnumSafe
+    toEnumMay, toEnumDef, toEnumNote, toEnumSafe,
+    succMay, succDef, succNote, succSafe,
+    predMay, predDef, predNote, predSafe,
     ) where
 
 import Safe.Util
@@ -298,3 +300,27 @@ toEnumNote note = fromNote note "toEnumNote, out of range" . toEnumMay
 
 toEnumSafe :: (Enum a, Bounded a) => Int -> a
 toEnumSafe = toEnumDef minBound
+
+succMay :: (Enum a, Eq a, Bounded a) => a -> Maybe a
+succMay = liftMay (== maxBound) succ
+
+succDef :: (Enum a, Eq a, Bounded a) => a -> a -> a
+succDef def = fromMaybe def . succMay
+
+succNote :: (Enum a, Eq a, Bounded a) => String -> a -> a
+succNote note = fromNote note "succNote, out of range" . succMay
+
+succSafe :: (Enum a, Eq a, Bounded a) => a -> a
+succSafe = succDef maxBound
+
+predMay :: (Enum a, Eq a, Bounded a) => a -> Maybe a
+predMay = liftMay (== minBound) pred
+
+predDef :: (Enum a, Eq a, Bounded a) => a -> a -> a
+predDef def = fromMaybe def . predMay
+
+predNote :: (Enum a, Eq a, Bounded a) => String -> a -> a
+predNote note = fromNote note "predNote, out of range" . predMay
+
+predSafe :: (Enum a, Eq a, Bounded a) => a -> a
+predSafe = predDef minBound
