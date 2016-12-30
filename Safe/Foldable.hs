@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fno-warn-unused-imports #-} -- Monoid required < 7.9
+{-# LANGUAGE CPP #-}
 {- |
 'Foldable' functions, with wrappers like the "Safe" module.
 -}
@@ -19,13 +19,15 @@ module Safe.Foldable(
 
 import Safe.Util
 import Data.Foldable as F
-import Data.Monoid
 import Data.Maybe
-
+#if !MIN_VERSION_base(4,8,0)
+import Data.Monoid
+#endif
 
 ---------------------------------------------------------------------
 -- UTILITIES
 
+fromNote :: String -> String -> Maybe a -> a
 fromNote = fromNoteModule "Safe.Foldable"
 
 isNull :: Foldable t => t a -> Bool

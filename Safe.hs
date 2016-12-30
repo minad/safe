@@ -58,7 +58,10 @@ import Text.Read (readEither)
 ---------------------------------------------------------------------
 -- UTILITIES
 
+fromNote :: String -> String -> Maybe a -> a
 fromNote = fromNoteModule "Safe"
+
+fromNoteEither :: String -> String -> Either String a -> a
 fromNoteEither = fromNoteEitherModule "Safe"
 
 
@@ -75,8 +78,8 @@ abort = error
 at_ :: [a] -> Int -> Either String a
 at_ xs o | o < 0 = Left $ "index must not be negative, index=" ++ show o
          | otherwise = f o xs
-    where f 0 (x:xs) = Right x
-          f i (x:xs) = f (i-1) xs
+    where f 0 (y:_ys) = Right y
+          f i (_y:ys) = f (i-1) ys
           f i [] = Left $ "index too large, index=" ++ show o ++ ", length=" ++ show (o-i)
 
 ---------------------------------------------------------------------
@@ -203,8 +206,8 @@ fromJustNote :: String -> Maybe a -> a
 fromJustNote note = fromNote note "fromJustNote Nothing"
 
 assertNote :: String -> Bool -> a -> a
-assertNote note True val = val
-assertNote note False val = fromNote note "assertNote False" Nothing
+assertNote _note True val = val
+assertNote note False _val = fromNote note "assertNote False" Nothing
 
 
 -- | Synonym for '!!', but includes more information in the error message.
@@ -269,9 +272,9 @@ findIndexJustNote note = fromNote note "findIndexJustNote, no matching value" .^
 toEnumMay :: (Enum a, Bounded a) => Int -> Maybe a
 toEnumMay i =
   let r = toEnum i
-      max = maxBound `asTypeOf` r
-      min = minBound `asTypeOf` r
-  in if i >= fromEnum min && i <= fromEnum max
+      maxb = maxBound `asTypeOf` r
+      minb = minBound `asTypeOf` r
+  in if i >= fromEnum minb && i <= fromEnum maxb
   then Just r
   else Nothing
 

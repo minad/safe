@@ -34,6 +34,7 @@ import Safe.Util
 ---------------------------------------------------------------------
 -- HELPERS
 
+addNote :: String -> String -> String -> a
 addNote note fun msg = error $
     "Safe.Exact." ++ fun ++ ", " ++ msg ++ (if null note then "" else ", " ++ note)
 
@@ -47,8 +48,8 @@ splitAtExact_ err nil cons o xs
     | o < 0 = err $ "index must not be negative, index=" ++ show o
     | otherwise = f o xs
     where
-        f 0 xs = nil xs
-        f i (x:xs) = x `cons` f (i-1) xs
+        f 0 ys = nil ys
+        f i (y:ys) = y `cons` f (i-1) ys
         f i [] = err $ "index too large, index=" ++ show o ++ ", length=" ++ show (o-i)
 
 
