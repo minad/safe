@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {- |
 A module wrapping @Prelude@/@Data.List@ functions that can throw exceptions, such as @head@ and @!!@.
 Each unsafe function has up to four variants, e.g. with @tail@:
@@ -50,6 +51,10 @@ import Safe.Util
 import Data.List
 import Data.Maybe
 
+#if MIN_VERSION_base(4,6,0)
+import Text.Read (readEither)
+#endif
+
 ---------------------------------------------------------------------
 -- UTILITIES
 
@@ -73,18 +78,6 @@ at_ xs o | o < 0 = Left $ "index must not be negative, index=" ++ show o
     where f 0 (x:xs) = Right x
           f i (x:xs) = f (i-1) xs
           f i [] = Left $ "index too large, index=" ++ show o ++ ", length=" ++ show (o-i)
-
-
-read_ :: Read a => String -> Either String a
-read_ s = case [x | (x,t) <- reads s, ("","") <- lex t] of
-        [x] -> Right x
-        []  -> Left $ "no parse on " ++ prefix
-        _   -> Left $ "ambiguous parse on " ++ prefix
-    where
-        maxLength = 15
-        prefix = '\"' : a ++ if length s <= maxLength then (b ++ "\"") else "...\""
-            where (a,b) = splitAt (maxLength - 3) s
-
 
 ---------------------------------------------------------------------
 -- WRAPPERS
@@ -227,16 +220,6 @@ atDef def = fromMaybe def .^ atMay
 atNote :: String -> [a] -> Int -> a
 atNote note = fromNoteEither note "atNote" .^ at_
 
-
-readMay :: Read a => String -> Maybe a
-readMay = eitherToMaybe . read_
-
-readDef :: Read a => a -> String -> a
-readDef def = fromMaybe def . readMay
-
-readNote :: Read a => String -> String -> a
-readNote note = fromNoteEither note "readNote" . read_
-
 -- |
 -- > lookupJust key = fromJust . lookup key
 lookupJust :: Eq a => a -> [(a,b)] -> b
@@ -324,3 +307,29 @@ predNote note = fromNote note "predNote, out of range" . predMay
 
 predSafe :: (Enum a, Eq a, Bounded a) => a -> a
 predSafe = predDef minBound
+
+---------------------------------------------------------------------
+-- DEPRECATED
+
+readMay :: Read a => String -> Maybe a
+readMay = eitherToMaybe . readEither
+
+readDef :: Read a => a -> String -> a
+readDef def = fromMaybe def . readMay
+
+readNote :: Read a => String -> String -> a
+readNote note = fromNoteEither note "readNote" . readEither
+
+#if MIN_VERSION_base(4,6,0)
+{-# DEPRECATED readMay, readDef, readNote "Use standard readMaybe or readEither instead" #-}
+#else
+readEither :: Read a => String -> Either String a
+readEither s = case [x | (x,t) <- reads s, ("","") <- lex t] of
+        [x] -> Right x
+        []  -> Left $ "no parse on " ++ prefix
+        _   -> Left $ "ambiguous parse on " ++ prefix
+    where
+        maxLength = 15
+        prefix = '\"' : a ++ if length s <= maxLength then (b ++ "\"") else "...\""
+            where (a,b) = splitAt (maxLength - 3) s
+#endif
